@@ -1,6 +1,6 @@
-from src.utils.pylogger import get_pylogger
-from src.utils.rich_utils import enforce_tags, print_config_tree
-from src.utils.utils import (
+from deepmc.utils.pylogger import get_pylogger
+from deepmc.utils.rich_utils import enforce_tags, print_config_tree
+from deepmc.utils.utils import (
     close_loggers,
     extras,
     get_metric_value,
