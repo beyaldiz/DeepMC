@@ -89,9 +89,9 @@ def read_file_ts(file_path):
 
     # Global joint positions
     # Expand dims for concatenation, (1, j, 3)
-    t_pose = data["J"][None, ...]
+    skel = data["J"][None, ...]
 
-    return t_pose
+    return skel
 
 
 class TS_Dataset(Dataset):
@@ -115,18 +115,18 @@ class TS_Dataset(Dataset):
             data_list = pool.map(read_file_ts, file_paths)
 
         # Concatenate data, (n, j, 3)
-        data = np.concatenate(data_list, axis=0)
+        skel_data = np.concatenate(data_list, axis=0)
 
         # Get local joint positions with respect to the parent joint, (n, j, 3)
-        data = data - data[:, topology, :]
+        skel_data = skel_data - skel_data[:, topology, :]
 
         # Get statistics of the data
         stat_dir = files_dir / ".." / "ts_statistics.npy"
         if not stat_dir.is_file():
             if train:
                 print("Template skeleton statistics not found, computing...")
-                mean = np.mean(data, axis=0)
-                std = np.std(data, ddof=1, axis=0)
+                mean = np.mean(skel_data, axis=0)
+                std = np.std(skel_data, ddof=1, axis=0)
                 std[std < 1e-5] = 1.0
 
                 np.save(files_dir / ".." / "ts_statistics.npy", np.array([mean, std]))
@@ -135,10 +135,74 @@ class TS_Dataset(Dataset):
             else:
                 TS_Dataset(data_dir, train=True, topology=topology)
 
-        self.X_t = data
+        self.X_t = skel_data
 
     def __len__(self):
         return self.X_t.shape[0]
 
     def __getitem__(self, idx):
         return self.X_t[idx]
+
+
+def read_file_mc(file_path):
+    data = np.load(file_path)
+
+    # Local marker offsets
+    # Expand dims for concatenation, (1, m, j, 3)
+    offset = data["marker_configuration"][None, ...]
+
+    # Local joint positions
+    # Expand dims for concatenation, (1, j, 3)
+    skel = data["J_t_local"][None, ...]
+
+    return offset, skel
+
+
+class MC_Dataset(Dataset):
+    def __init__(
+        self,
+        data_dir: str = "data/",
+        train: bool = False,
+        topology: list = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+    ):
+        # Check whether the data is preprocessed
+        if not check_preprocess(data_dir):
+            print("Preprocessed data not found, preprocessing...")
+            preprocess(data_dir, topology)
+            print("Preprocessed data saved.")
+
+        files_dir = pathlib.Path(data_dir) / "MS_Synthetic_preprocessed" / ("train_sample_data" if train else "test_sample_data")
+        file_paths = [f for f in files_dir.glob("*.npz")]
+
+        # Load data in parallel
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+            data_list = pool.map(read_file_mc, file_paths)
+
+        # Concatenate marker configurations, (n, m, j, 3)
+        offset_data = np.concatenate([d[0] for d in data_list], axis=0)
+
+        # Concatenate local joint positions, (n, j, 3)
+        skel_data = np.concatenate([d[1] for d in data_list], axis=0)
+
+        # Get statistics of the data
+        stat_dir = files_dir / ".." / "mc_statistics.npy"
+        if not stat_dir.is_file():
+            if train:
+                print("Marker configuration statistics not found, computing...")
+                mean = np.mean(offset_data, axis=0)
+                std = np.std(offset_data, ddof=1, axis=0)
+                std[std < 1e-5] = 1.0
+
+                np.save(files_dir / ".." / "mc_statistics.npy", np.array([mean, std]))
+                print("Marker configuration statistics saved.")
+
+            else:
+                MC_Dataset(data_dir, train=True, topology=topology)
+
+        self.X_c, self.X_t = offset_data, skel_data
+
+    def __len__(self):
+        return self.X_c.shape[0]
+
+    def __getitem__(self, idx):
+        return self.X_c[idx], self.X_t[idx]
