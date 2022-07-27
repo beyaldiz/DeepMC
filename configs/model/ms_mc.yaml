@@ -1,0 +1,23 @@
+_target_: deepmc.models.ms_module.MCLitModule
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.0002
+
+encoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.MC_enc
+  num_markers: 56
+  num_joints: 24
+
+decoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.MC_dec
+  num_markers: 56
+  num_joints: 24
+
+ts_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-07-24_10-17-20/checkpoints/epoch_99802.ckpt
+
+topology: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+data_dir: ${paths.data_dir}
+beta_3: 2.0
+beta_4: 20.0
