@@ -1,0 +1,45 @@
+_target_: deepmc.models.ms_module.MSLitModule
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.0001
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.StepLR
+  _partial_: true
+  step_size: 10
+  gamma: 0.9
+
+encoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.Marker_enc
+  num_markers: 56
+  num_joints: 24
+
+decoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.Marker_dec
+
+ts_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-07-24_10-17-20/checkpoints/epoch_99802.ckpt
+mc_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-07-27_11-48-15/checkpoints/epoch_93047.ckpt
+mo_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-07-29_07-54-19/checkpoints/epoch_1358.ckpt
+
+fk: 
+  _target_: deepmc.models.components.MoCap_Solver.Kinematics.ForwardKinematics
+  topology: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+
+skin:
+  _target_: deepmc.models.components.MoCap_Solver.Kinematics.Skinning
+
+topology: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+data_dir: ${paths.data_dir}
+
+beta_1: 20.0
+beta_2: 50.0
+beta_3: 1000.0
+beta_4: 1.0
+beta_5: 2.0
+beta_6: 10.0
+beta_7: 5000.0
+beta_8: 1.0
+beta_9: 100.0
+beta_10: 100.0
