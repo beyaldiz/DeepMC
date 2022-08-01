@@ -24,7 +24,7 @@ RUN conda install -y python=3.8 \
 
 RUN python -m pip install pytorch-lightning torchmetrics hydra-core hydra-colorlog \
 	hydra-optuna-sweeper wandb neptune-client mlflow comet-ml pyrootutils \
-	pre-commit rich pytest sh
+	pre-commit rich pytest sh pyquaternion
 
 SHELL ["/bin/bash", "-c"]
 
