@@ -4,7 +4,12 @@ import torch
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 
-from deepmc.datamodules.components.MoCap_Solver import TS_Dataset, MC_Dataset, MO_Dataset, MS_Dataset
+from deepmc.datamodules.components.MoCap_Solver import (
+    TS_Dataset,
+    MC_Dataset,
+    MO_Dataset,
+    MS_Dataset,
+)
 
 
 class TSDataModule(LightningDataModule):
@@ -39,7 +44,32 @@ class TSDataModule(LightningDataModule):
         self,
         data_dir: str = "data/",
         batch_size: int = 64,
-        topology: list = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21],
+        topology: list = [
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            9,
+            9,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+        ],
         num_workers: int = 0,
         pin_memory: bool = False,
     ):
@@ -61,9 +91,15 @@ class TSDataModule(LightningDataModule):
         """
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            self.data_train = TS_Dataset(self.hparams.data_dir, train=True, topology=self.hparams.topology)
-            self.data_val = TS_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
-            self.data_test = TS_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
+            self.data_train = TS_Dataset(
+                self.hparams.data_dir, train=True, topology=self.hparams.topology
+            )
+            self.data_val = TS_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
+            self.data_test = TS_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
 
     def train_dataloader(self):
         return DataLoader(
@@ -77,7 +113,7 @@ class TSDataModule(LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             dataset=self.data_val,
-            batch_size=self.hparams.batch_size,
+            batch_size=2048,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
@@ -137,7 +173,32 @@ class MCDataModule(LightningDataModule):
         self,
         data_dir: str = "data/",
         batch_size: int = 64,
-        topology: list = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21],
+        topology: list = [
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            9,
+            9,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+        ],
         num_workers: int = 0,
         pin_memory: bool = False,
     ):
@@ -159,9 +220,15 @@ class MCDataModule(LightningDataModule):
         """
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            self.data_train = MC_Dataset(self.hparams.data_dir, train=True, topology=self.hparams.topology)
-            self.data_val = MC_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
-            self.data_test = MC_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
+            self.data_train = MC_Dataset(
+                self.hparams.data_dir, train=True, topology=self.hparams.topology
+            )
+            self.data_val = MC_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
+            self.data_test = MC_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
 
     def train_dataloader(self):
         return DataLoader(
@@ -235,7 +302,32 @@ class MODataModule(LightningDataModule):
         self,
         data_dir: str = "data/",
         batch_size: int = 1024,
-        topology: list = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21],
+        topology: list = [
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            9,
+            9,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+        ],
         num_workers: int = 0,
         pin_memory: bool = False,
     ):
@@ -257,9 +349,15 @@ class MODataModule(LightningDataModule):
         """
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            self.data_train = MO_Dataset(self.hparams.data_dir, train=True, topology=self.hparams.topology)
-            self.data_val = MO_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
-            self.data_test = MO_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
+            self.data_train = MO_Dataset(
+                self.hparams.data_dir, train=True, topology=self.hparams.topology
+            )
+            self.data_val = MO_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
+            self.data_test = MO_Dataset(
+                self.hparams.data_dir, train=False, topology=self.hparams.topology
+            )
 
     def train_dataloader(self):
         return DataLoader(
@@ -333,7 +431,36 @@ class MSDataModule(LightningDataModule):
         self,
         data_dir: str = "data/",
         batch_size: int = 512,
-        topology: list = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21],
+        topology: list = [
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            9,
+            9,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+        ],
+        ms_preprocess: bool = False,
+        ts_encoder_ckpt_dir: str = None,
+        mc_encoder_ckpt_dir: str = None,
+        mo_encoder_ckpt_dir: str = None,
         num_workers: int = 0,
         pin_memory: bool = False,
     ):
@@ -355,9 +482,27 @@ class MSDataModule(LightningDataModule):
         """
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            self.data_train = MS_Dataset(self.hparams.data_dir, train=True, topology=self.hparams.topology)
-            self.data_val = MS_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
-            self.data_test = MS_Dataset(self.hparams.data_dir, train=False, topology=self.hparams.topology)
+            self.data_train = MS_Dataset(
+                self.hparams.data_dir,
+                train=True,
+                topology=self.hparams.topology,
+                ms_preprocess=self.hparams.ms_preprocess,
+                ts_encoder_ckpt_dir=self.hparams.ts_encoder_ckpt_dir,
+                mc_encoder_ckpt_dir=self.hparams.mc_encoder_ckpt_dir,
+                mo_encoder_ckpt_dir=self.hparams.mo_encoder_ckpt_dir,
+            )
+            self.data_val = MS_Dataset(
+                self.hparams.data_dir,
+                train=False,
+                topology=self.hparams.topology,
+                ms_preprocess=False,
+            )
+            self.data_test = MS_Dataset(
+                self.hparams.data_dir,
+                train=False,
+                topology=self.hparams.topology,
+                ms_preprocess=False,
+            )
 
     def train_dataloader(self):
         return DataLoader(
@@ -376,7 +521,6 @@ class MSDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            drop_last=True,
         )
 
     def test_dataloader(self):
@@ -386,7 +530,6 @@ class MSDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            drop_last=True,
         )
 
     def teardown(self, stage: Optional[str] = None):
