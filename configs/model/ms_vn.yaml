@@ -1,4 +1,4 @@
-_target_: deepmc.models.ms_module.MSLitModule
+_target_: deepmc.models.ms_module.MSNoEncLitModule
 
 optimizer:
   _target_: torch.optim.Adam
@@ -12,16 +12,30 @@ scheduler:
   gamma: 0.9
 
 encoder_net:
-  _target_: deepmc.models.components.MoCap_Solver.Marker_enc
+  _target_: deepmc.models.components.vn_ms_net.VN_Marker_enc
   num_markers: 56
   num_joints: 24
 
 decoder_net:
-  _target_: deepmc.models.components.MoCap_Solver.Marker_dec
+  _target_: deepmc.models.components.vn_ms_net.VN_Marker_dec
 
-ts_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-08-02_08-28-04/checkpoints/epoch_99982.ckpt
-mc_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-08-04_06-10-59/checkpoints/epoch_5760.ckpt
-mo_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-08-04_07-36-53/checkpoints/epoch_829.ckpt
+ts_decoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.TS_dec
+  topology: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+  num_layers: 2
+  skeleton_dist: 2
+
+mc_decoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.MC_dec
+  num_markers: 56
+  num_joints: 24
+
+mo_decoder_net:
+  _target_: deepmc.models.components.MoCap_Solver.MO_dec
+  num_layers: 2
+  kernel_size: 15
+  skeleton_dist: 2
+  extra_conv: 0
 
 fk: 
   _target_: deepmc.models.components.MoCap_Solver.Kinematics.ForwardKinematics

@@ -2,8 +2,8 @@
 
 defaults:
   - _self_
-  - datamodule: mnist.yaml # choose datamodule with `test_dataloader()` for evaluation
-  - model: mnist.yaml
+  - datamodule: ms.yaml # choose datamodule with `test_dataloader()` for evaluation
+  - model: ms_no_encoder.yaml
   - logger: null
   - trainer: default.yaml
   - paths: default.yaml
@@ -15,4 +15,4 @@ task_name: "eval"
 tags: ["dev"]
 
 # passing checkpoint path is necessary for evaluation
-ckpt_path: ???
+ckpt_path: ${paths.root_dir}/logs/train/runs/2022-08-04_09-30-43/checkpoints/epoch_258.ckpt

@@ -20,7 +20,7 @@ decoder_net:
   skeleton_dist: 2
   extra_conv: 0
 
-ts_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-07-24_10-17-20/checkpoints/epoch_99802.ckpt
+ts_encoder_ckpt_dir: ${paths.root_dir}/logs/train/runs/2022-08-02_08-28-04/checkpoints/epoch_99982.ckpt
 
 fk: 
   _target_: deepmc.models.components.MoCap_Solver.Kinematics.ForwardKinematics
