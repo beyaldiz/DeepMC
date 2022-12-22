@@ -1,0 +1,1 @@
+from deepmc.datamodules.components.ModelNet40.modelnet40 import ModelNet40Alignment

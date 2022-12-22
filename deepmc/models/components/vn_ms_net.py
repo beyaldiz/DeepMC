@@ -17,7 +17,8 @@ class VN_Marker_enc(nn.Module):
     def __init__(
         self,
         num_markers: int = 56,
-        num_joints: int = 24
+        num_joints: int = 24,
+        num_feat: int = 2048
     ):
         super(VN_Marker_enc, self).__init__()
         # Hard coded
@@ -63,40 +64,40 @@ class VN_Marker_enc(nn.Module):
         ]
         self.foots_jt_idx = [_dict_joints['L_Ankle'], _dict_joints['R_Ankle'], _dict_joints['L_Foot'], _dict_joints['R_Foot']]
 
-        self.lambda_para[[self.head_idx]] = self.lambda_para[[self.head_idx]] * 10  # head
-        self.lambda_para[[self.shoulder_idx]] = self.lambda_para[[self.shoulder_idx]] * 5  # shoulder
-        self.lambda_para[[self.arm_idx]] = self.lambda_para[[self.arm_idx]] * 8  # arm
-        self.lambda_para[[self.wrist_hand_idx]] = self.lambda_para[[self.wrist_hand_idx]] * 10  # wrist
-        self.lambda_para[[self.torso_idx]] = self.lambda_para[[self.torso_idx]] * 5  # torso
-        self.lambda_para[[self.thigh_idx]] = self.lambda_para[[self.thigh_idx]] * 8  # thigh
-        self.lambda_para[[self.foots_idx]] = self.lambda_para[[self.foots_idx]] * 10  # foots
+        self.lambda_para[self.head_idx] = self.lambda_para[self.head_idx] * 10  # head
+        self.lambda_para[self.shoulder_idx] = self.lambda_para[self.shoulder_idx] * 5  # shoulder
+        self.lambda_para[self.arm_idx] = self.lambda_para[self.arm_idx] * 8  # arm
+        self.lambda_para[self.wrist_hand_idx] = self.lambda_para[self.wrist_hand_idx] * 10  # wrist
+        self.lambda_para[self.torso_idx] = self.lambda_para[self.torso_idx] * 5  # torso
+        self.lambda_para[self.thigh_idx] = self.lambda_para[self.thigh_idx] * 8  # thigh
+        self.lambda_para[self.foots_idx] = self.lambda_para[self.foots_idx] * 10  # foots
 
-        self.lambda_jt_para[[self.head_jt_idx]] = self.lambda_jt_para[[self.head_jt_idx]] * 10  # head
-        self.lambda_jt_para[[self.shoulder_jt_idx]] = self.lambda_jt_para[[self.shoulder_jt_idx]] * 5  # shoulder
-        self.lambda_jt_para[[self.arm_jt_idx]] = self.lambda_jt_para[[self.arm_jt_idx]] * 8  # arm
-        self.lambda_jt_para[[self.wrist_hand_jt_idx]] = self.lambda_jt_para[[self.wrist_hand_jt_idx]] * 10  # wrist
-        self.lambda_jt_para[[self.torso_jt_idx]] = self.lambda_jt_para[[self.torso_jt_idx]] * 5  # torso
-        self.lambda_jt_para[[self.thigh_jt_idx]] = self.lambda_jt_para[[self.thigh_jt_idx]] * 8  # thigh
-        self.lambda_jt_para[[self.foots_jt_idx]] = self.lambda_jt_para[[self.foots_jt_idx]] * 10  # foots
+        self.lambda_jt_para[self.head_jt_idx] = self.lambda_jt_para[self.head_jt_idx] * 10  # head
+        self.lambda_jt_para[self.shoulder_jt_idx] = self.lambda_jt_para[self.shoulder_jt_idx] * 5  # shoulder
+        self.lambda_jt_para[self.arm_jt_idx] = self.lambda_jt_para[self.arm_jt_idx] * 8  # arm
+        self.lambda_jt_para[self.wrist_hand_jt_idx] = self.lambda_jt_para[self.wrist_hand_jt_idx] * 10  # wrist
+        self.lambda_jt_para[self.torso_jt_idx] = self.lambda_jt_para[self.torso_jt_idx] * 5  # torso
+        self.lambda_jt_para[self.thigh_jt_idx] = self.lambda_jt_para[self.thigh_jt_idx] * 8  # thigh
+        self.lambda_jt_para[self.foots_jt_idx] = self.lambda_jt_para[self.foots_jt_idx] * 10  # foots
         self.joints_nums = num_joints
         self.marker_nums = num_markers
         self.layers = nn.ModuleList()
         self.normLayers = nn.ModuleList()
         self.actLayers = nn.ModuleList()
-        self.prevLayer = VNLinear(FRAMENUM * num_markers, 2048 // 3)
-        self.layers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.normLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.actLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.layers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.normLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.actLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.layers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.normLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.actLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
+        self.prevLayer = VNLinear(FRAMENUM * num_markers, num_feat)
+        self.layers.append(VNLinear(num_feat, num_feat))
+        self.normLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.actLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.layers.append(VNLinear(num_feat, num_feat))
+        self.normLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.actLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.layers.append(VNLinear(num_feat, num_feat))
+        self.normLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.actLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
-        self.actLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.layers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.actLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
+        self.actLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.layers.append(VNLinear(num_feat, num_feat))
+        self.actLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
     def forward(self, input):
         input = input.view(input.shape[0], -1, input.shape[3])
@@ -121,7 +122,10 @@ class VN_Marker_enc(nn.Module):
 
 
 class VN_Marker_dec(nn.Module):
-    def __init__(self):
+    def __init__(
+        self,
+        num_feat: int = 2048
+    ):
         super(VN_Marker_dec, self).__init__()
         self.configlayers = nn.ModuleList()
         self.confignormLayers = nn.ModuleList()
@@ -135,59 +139,60 @@ class VN_Marker_dec(nn.Module):
         self.transLayers = nn.ModuleList()
         self.transactLayers = nn.ModuleList()
 
-        self.configlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.confignormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.configactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
+        self.configlayers.append(VNLinear(num_feat, num_feat))
+        self.confignormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.configactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
-        self.configlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.confignormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.configactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
+        self.configlayers.append(VNLinear(num_feat, num_feat))
+        self.confignormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.configactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
-        self.configactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.configlayers.append(VNLinear(2048 // 3, 1024 // 3))
+        self.configactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.configlayers.append(VNLinear(num_feat, 1024))
 
-        self.mdlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.mdnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.mdactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
-        self.mdlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.mdnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.mdactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-
-
-
-        self.mdlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.mdnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.mdactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-
-        self.mdactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.mdlayers.append(VNLinear(2048 // 3, 2048 // 3))
-
-
-        self.offsetlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.offsetnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.offsetactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-
-        self.offsetlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.offsetnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.offsetactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-
-        self.offsetlayers.append(VNLinear(2048 // 3, 2048 // 3))
-        self.offsetnormLayers.append(VNBatchNorm(2048 // 3, dim=3))
-        self.offsetactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-
-        self.offsetactLayers.append(VNLeakyReLU(2048 // 3, negative_slope=0.5))
-        self.offsetlayers.append(VNLinear(2048 // 3, 168 // 3))
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
 
 
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
 
-        self.inv1 = VNStdFeature(1024 // 3, dim=3)
-        self.inv2 = VNStdFeature(2048 // 3, dim=3)
-        self.inv3 = VNStdFeature(168 // 3, dim=3)
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.mdlayers.append(VNLinear(num_feat, 2048))
 
-        self.transform1 = Linear(341*3, 1024)
-        self.transform2 = Linear(682*3, 2048)
+
+        self.offsetlayers.append(VNLinear(num_feat, num_feat))
+        self.offsetnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.offsetactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+        self.offsetlayers.append(VNLinear(num_feat, num_feat))
+        self.offsetnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.offsetactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+        self.offsetlayers.append(VNLinear(num_feat, num_feat))
+        self.offsetnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.offsetactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+        self.offsetactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.offsetlayers.append(VNLinear(num_feat, 168))
+
+
+
+
+        self.inv1 = VNStdFeature(1024, dim=3)
+        self.inv2 = VNStdFeature(2048, dim=3)
+        self.inv3 = VNStdFeature(168, dim=3)
+
+        self.transform1 = Linear(1024*3, 1024)
+        self.transform2 = Linear(2048*3, 2048)
+        self.transform3 = Linear(168*3, 168)
 
 
     def forward(self, input):
@@ -257,6 +262,63 @@ class VN_Marker_dec(nn.Module):
         offset_x_o = self.offsetlayers[3](offset_vector)
 
         offset_x_o, _ = self.inv3(offset_x_o)
+        offset_x_o = self.transform3(offset_x_o.view(offset_x_o.shape[0], -1))
+        
         offset_x_o = offset_x_o.reshape([offset_x_o.shape[0], 168])
 
         return mrk_config_x_o, md_x_o, offset_x_o
+
+class VN_Marker_dec_root(nn.Module):
+    def __init__(
+        self,
+        num_feat: int = 2048
+    ):
+        super(VN_Marker_dec_root, self).__init__()
+        self.mdlayers = nn.ModuleList()
+        self.mdnormLayers = nn.ModuleList()
+        self.mdactLayers = nn.ModuleList()
+
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+
+
+        self.mdlayers.append(VNLinear(num_feat, num_feat))
+        self.mdnormLayers.append(VNBatchNorm(num_feat, dim=3))
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+
+        self.mdactLayers.append(VNLeakyReLU(num_feat, negative_slope=0.5))
+        self.mdlayers.append(VNLinear(num_feat, 256))
+
+
+    def forward(self, input):
+        ######motion data#############################
+        md_vector = self.mdnormLayers[0](input)
+        md_vector = self.mdactLayers[0](md_vector)
+        md_vector1 = self.mdlayers[0](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector = self.mdnormLayers[1](md_vector)
+        md_vector = self.mdactLayers[1](md_vector)
+        md_vector1 = self.mdlayers[1](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector = self.mdnormLayers[2](md_vector)
+        md_vector = self.mdactLayers[2](md_vector)
+        md_vector1 = self.mdlayers[2](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector5 = self.mdactLayers[3](md_vector)
+        md_x_o = self.mdlayers[3](md_vector5)
+
+        # Shape BS x 256 x 3
+        R, t = md_x_o[:, 64:], md_x_o[:, :64]
+        R = R.view(-1, 64, 3, 3)
+        R = R.transpose(-1, -2).clone()
+
+        return R, t

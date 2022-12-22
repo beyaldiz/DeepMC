@@ -1,0 +1,19 @@
+_target_: deepmc.models.vn_dgcnn_pose_module.VNDGCNNLitModule
+
+net:
+  _target_: deepmc.models.components.vn_dgcnn_pose_net.VN_DGCNN_pose
+  n_knn: 20
+  pooling: "mean"
+
+optimizer:
+  _target_: torch.optim.SGD
+  _partial_: true
+  lr: 0.1
+  momentum: 0.9
+  weight_decay: 0.0001
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.StepLR
+  _partial_: true
+  step_size: 20
+  gamma: 0.7

@@ -974,7 +974,7 @@ class MSNoEncLitModule(LightningModule):
         self.save_hyperparameters(
             logger=False,
             ignore=[
-                "encoder_net, decoder_net, ts_decoder_net, mc_decoder_net, mo_decoder_net"
+                "encoder_net", "decoder_net", "ts_decoder_net", "mc_decoder_net", "mo_decoder_net"
             ],
         )
 
@@ -989,12 +989,16 @@ class MSNoEncLitModule(LightningModule):
         clean_markers_stat_dir = (
             data_dir + "/MS_Synthetic_preprocessed/clean_markers_statistics.npy"
         )
+
+        # Hard coded !!!!!
         first_rot_stat_dir = (
-            data_dir + "/MS_Synthetic_preprocessed/first_rot_statistics.npy"
+            data_dir + "/ours_Synthetic/msalign_first_rot_statistics.npy"
         )
         ts_stat_dir = data_dir + "/MS_Synthetic_preprocessed/ts_statistics.npy"
         mc_stat_dir = data_dir + "/MS_Synthetic_preprocessed/mc_statistics.npy"
-        mo_stat_dir = data_dir + "/MS_Synthetic_preprocessed/mo_statistics.npy"
+
+        # Hard coded !!!!!
+        mo_stat_dir = data_dir + "/ours_Synthetic/msalign_mo_statistics.npy"
         skinning_weights_dir = (
             data_dir + "/MS_Synthetic_preprocessed/skinning_weights.npy"
         )

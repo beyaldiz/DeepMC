@@ -1,0 +1,6 @@
+_target_: deepmc.datamodules.modelnet40_datamodule.ModelNetDataModule
+data_dir: ${paths.data_dir}
+batch_size: 32
+num_points: 1024
+num_workers: 1
+pin_memory: True

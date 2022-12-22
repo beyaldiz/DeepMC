@@ -870,3 +870,229 @@ class MS_Dataset(Dataset):
             self.J_R[idx],
         ]
 
+
+def read_file_ours(file_path, idx=None):
+    data = np.load(file_path)
+
+    # Clean markers
+    clean_markers = data["M"].astype(np.float32)
+
+    # Raw markers
+    raw_markers = data["M1"].astype(np.float32)
+    raw_markers = simulate_outlier_remove(clean_markers, raw_markers)
+
+    # Global joint positions
+    J_t = data["J_t"].astype(np.float32)
+    J_R = data["J_R"].astype(np.float32)
+
+    motion = data["motion"].astype(np.float32)
+
+    offsets = data["offsets"].astype(np.float32)
+
+    mrk_config = data["mrk_config"].astype(np.float32)
+
+    first_rot = data["first_rot"].astype(np.float32)
+
+    if idx is not None:
+        return (
+            raw_markers[idx],
+            clean_markers[idx],
+            J_t[idx],
+            J_R[idx],
+            motion[idx],
+            offsets[idx],
+            mrk_config[idx],
+            first_rot[idx],
+        )
+
+    return (
+        raw_markers,
+        clean_markers,
+        J_t,
+        J_R,
+        motion,
+        offsets,
+        mrk_config,
+        first_rot,
+    )
+
+
+def get_num_windows(file_path):
+    data = np.load(file_path)
+
+    return data["offsets"].shape[0]
+
+
+class ours_Dataset(Dataset):
+    def __init__(
+        self,
+        data_dir: str = "data/",
+        train: bool = False,
+        topology: list = [
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            9,
+            9,
+            12,
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+        ],
+        mode: str = "noalign",
+        lazy: bool = False,
+        subset: int = 0,
+    ):
+        self.lazy = lazy
+        files_dir = (
+            pathlib.Path(data_dir)
+            / "ours_Synthetic"
+            / (f"{mode}_train_windows_data" if train else f"{mode}_test_windows_data")
+        )
+        file_paths = [f for f in files_dir.glob("*.npz")]
+        if subset != 0:
+            file_paths = sorted(file_paths)[::subset]
+        self.file_paths = file_paths
+
+        # Store all things in ram
+        if not lazy:
+            # Load data in parallel
+            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+                data_list = pool.map(read_file_ours, file_paths)
+
+            print("Read done!")
+
+            raw_markers = np.concatenate([d[0] for d in data_list], axis=0)
+            print("Raw markers concatenated!")
+            clean_markers = np.concatenate([d[1] for d in data_list], axis=0)
+            print("Clean markers concatenated!")
+            J_t = np.concatenate([d[2] for d in data_list], axis=0)
+            print("J_t concatenated!")
+            J_R = np.concatenate([d[3] for d in data_list], axis=0)
+            print("J_R concatenated!")
+            motion = np.concatenate([d[4] for d in data_list], axis=0)
+            print("Motion concatenated!")
+            offsets = np.concatenate([d[5] for d in data_list], axis=0)
+            print("Offsets concatenated!")
+            mrk_config = np.concatenate([d[6] for d in data_list], axis=0)
+            print("Mrk_config concatenated!")
+            first_rot = np.concatenate([d[7] for d in data_list], axis=0)
+            print("First_rot concatenated!")
+
+            del data_list
+
+            # Get statistics of the data
+            stat_dir = files_dir / ".." / f"{mode}_mo_statistics.npy"
+            if not stat_dir.is_file():
+                if train:
+                    print("Motion statistics not found, computing...")
+                    mean = np.mean(motion, axis=(0, 2))
+                    std = np.std(motion, axis=(0, 2))
+                    std[std < 1e-5] = 1.0
+
+                    np.save(
+                        files_dir / ".." / f"{mode}_mo_statistics.npy",
+                        np.array([mean, std], dtype=np.float32),
+                    )
+                    print("Motion statistics saved.")
+
+                    mean = np.mean(first_rot, axis=0)
+                    std = np.std(first_rot, ddof=1, axis=0)
+                    std[std < 1e-4] = 1.0
+
+                    np.save(
+                        files_dir / ".." / f"{mode}_first_rot_statistics.npy",
+                        np.array([mean, std], dtype=np.float32),
+                    )
+
+                else:
+                    ours_Dataset(data_dir, train=True, topology=topology, mode=mode)
+
+
+            self.raw_markers = raw_markers
+            self.clean_markers = clean_markers
+            self.J_t = J_t
+            self.J_R = J_R
+            self.motion = motion
+            self.offsets = offsets
+            self.mrk_config = mrk_config
+            self.first_rot = first_rot
+        
+        # Read from disk when needed
+        else:
+            # Get in parallel
+            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+                num_windows_per_file = pool.map(get_num_windows, file_paths)
+            
+            self.num_windows = sum(num_windows_per_file)
+            
+            num_windows_per_file = np.array(num_windows_per_file)
+            self.cum_windows = np.cumsum(num_windows_per_file)
+            self.file_idx_window = []
+
+            for i, num_windows in enumerate(num_windows_per_file):
+                self.file_idx_window += [i] * num_windows
+
+    def __len__(self):
+        if not self.lazy:
+            return self.clean_markers.shape[0]
+
+        else:
+            return self.num_windows
+
+    def __getitem__(self, idx):
+        if not self.lazy:
+            return [
+                self.raw_markers[idx],
+                self.clean_markers[idx],
+                self.J_t[idx],
+                self.motion[idx],
+                self.offsets[idx],
+                self.mrk_config[idx],
+                self.first_rot[idx],
+                0,
+                0,
+                self.J_R[idx],
+            ]
+
+        else:
+            file_idx = self.file_idx_window[idx]
+            total_windows_until = self.cum_windows[file_idx - 1] if file_idx != 0 else 0
+            window_idx = idx - total_windows_until - 1
+            (
+                raw_markers,
+                clean_markers,
+                J_t,
+                J_R,
+                motion,
+                offsets,
+                mrk_config,
+                first_rot,
+            ) = read_file_ours(self.file_paths[file_idx], window_idx)
+            return [
+                raw_markers,
+                clean_markers,
+                J_t,
+                motion,
+                offsets,
+                mrk_config,
+                first_rot,
+                0,
+                0,
+                J_R,
+            ]

@@ -1,1 +1,1 @@
-from deepmc.datamodules.components.MoCap_Solver.encoders_dataset import TS_Dataset, MC_Dataset, MO_Dataset, MS_Dataset
+from deepmc.datamodules.components.MoCap_Solver.encoders_dataset import TS_Dataset, MC_Dataset, MO_Dataset, MS_Dataset, ours_Dataset

@@ -555,3 +555,53 @@ class Marker_dec(nn.Module):
         offset_x_o = offset_x_o.reshape([offset_x_o.shape[0], 168])
 
         return mrk_config_x_o, md_x_o, offset_x_o
+
+
+class Marker_dec_root(nn.Module):
+    def __init__(self):
+        super(Marker_dec_root, self).__init__()
+        self.mdlayers = nn.ModuleList()
+        self.mdnormLayers = nn.ModuleList()
+        self.mdactLayers = nn.ModuleList()
+
+        self.mdlayers.append(Linear(2048, 2048))
+        self.mdnormLayers.append(BatchNorm1d(2048))
+        self.mdactLayers.append(LeakyReLU(0.5))
+
+        self.mdlayers.append(Linear(2048, 2048))
+        self.mdnormLayers.append(BatchNorm1d(2048))
+        self.mdactLayers.append(LeakyReLU(0.5))
+
+
+
+        self.mdlayers.append(Linear(2048, 2048))
+        self.mdnormLayers.append(BatchNorm1d(2048))
+        self.mdactLayers.append(LeakyReLU(0.5))
+
+        self.mdactLayers.append(LeakyReLU(0.5))
+        self.mdlayers.append(Linear(2048, 64*(9+3)))
+
+
+    def forward(self, input):
+        ######motion data#############################
+        md_vector = self.mdnormLayers[0](input)
+        md_vector = self.mdactLayers[0](md_vector)
+        md_vector1 = self.mdlayers[0](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector = self.mdnormLayers[1](md_vector)
+        md_vector = self.mdactLayers[1](md_vector)
+        md_vector1 = self.mdlayers[1](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector = self.mdnormLayers[2](md_vector)
+        md_vector = self.mdactLayers[2](md_vector)
+        md_vector1 = self.mdlayers[2](md_vector)
+        md_vector = md_vector + md_vector1
+
+        md_vector5 = self.mdactLayers[3](md_vector)
+        md_x_o = self.mdlayers[3](md_vector5)
+        R, t = md_x_o[..., :64*9], md_x_o[..., 64*9:]
+        R, t = R.view(-1, 64, 3, 3).clone(), t.view(-1, 64, 3)
+
+        return R, t

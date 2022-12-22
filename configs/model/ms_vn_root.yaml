@@ -1,0 +1,36 @@
+_target_: deepmc.models.ms_root_module.MSRootLitModule
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.0001
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.StepLR
+  _partial_: true
+  step_size: 10
+  gamma: 0.9
+
+encoder_net:
+  _target_: deepmc.models.components.vn_ms_net.VN_Marker_enc
+  num_markers: 56
+  num_joints: 24
+  num_feat: 682
+
+decoder_net:
+  _target_: deepmc.models.components.vn_ms_net.VN_Marker_dec_root
+  num_feat: 682
+
+topology: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 12, 13, 14, 16, 17, 18, 19, 20, 21]
+data_dir: ${paths.data_dir}
+
+beta_1: 20.0
+beta_2: 50.0
+beta_3: 1000.0
+beta_4: 1.0
+beta_5: 2.0
+beta_6: 10.0
+beta_7: 5000.0
+beta_8: 1.0
+beta_9: 100.0
+beta_10: 100.0
