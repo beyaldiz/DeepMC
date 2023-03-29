@@ -38,6 +38,10 @@ For different normalizations of the data, tools in [create_data.py](https://gith
 
 ### Models
 
+Model components for MoCap-Solver, Vector Neurons and Vector Neurons version of MoCap-Solver can be found at `deepmc/models/components/`.
+
+The list below summarizes the lightning models (Components can be replaced for the Vector Neurons version of MoCap-Solver):
+
 #### [MoCap-Solver Lightning models](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/models/ms_module.py):
 
 `TSLitModule`: Lightning module for __template skeleton encoder__
