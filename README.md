@@ -36,4 +36,23 @@ Data needs to be preprocessed and saved for faster loading during training. The 
 
 For different normalizations of the data, tools in [create_data.py](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/utils/MoCap_Solver/create_data.py) can be used. `msalign: Alignment heuristic provided by MoCap-Solver`, `gtalign: Alignment based on root joint`, `noalign: No normalization`.
 
+### Models
 
+#### [MoCap-Solver Lightning models](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/models/ms_module.py):
+
+`TSLitModule`: Lightning module for template skeleton encoder
+
+`MCLitModule`: Lightning module for marker configuration encoder
+
+`MOLitModule`: Lightning module for motion encoder
+
+`MSLitModule`: Lightning module for MoCap-Solver model
+
+`MSNoEncLitModule`: Lightning module for MoCap-Solver model (w/o encoders)
+
+### Training
+
+Training configs are set in [train.yaml](https://github.com/beyaldiz/DeepMC/blob/main/configs/train.yaml). Once the configs are set, models can be trained as follows:
+```
+python deepmc/train.py
+```
