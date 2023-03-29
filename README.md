@@ -40,15 +40,23 @@ For different normalizations of the data, tools in [create_data.py](https://gith
 
 #### [MoCap-Solver Lightning models](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/models/ms_module.py):
 
-`TSLitModule`: Lightning module for template skeleton encoder
+`TSLitModule`: Lightning module for __template skeleton encoder__
 
-`MCLitModule`: Lightning module for marker configuration encoder
+`MCLitModule`: Lightning module for __marker configuration encoder__
 
-`MOLitModule`: Lightning module for motion encoder
+`MOLitModule`: Lightning module for __motion encoder__
 
-`MSLitModule`: Lightning module for MoCap-Solver model
+`MSLitModule`: Lightning module for __MoCap-Solver model__
 
-`MSNoEncLitModule`: Lightning module for MoCap-Solver model (w/o encoders)
+`MSNoEncLitModule`: Lightning module for __MoCap-Solver model (w/o encoders)__
+
+#### [VN-DGCNN Pose Estimation model](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/models/vn_dgcnn_pose_module.py):
+
+`VNDGCNNLitModule`: Lightning module for __VN-DGCNN pose estimation__
+
+#### [MoCap-Solver Root Joint ONLY Lightning model](https://github.com/beyaldiz/DeepMC/blob/main/deepmc/models/ms_root_module.py):
+
+`MSRootLitModule`: Lightning module for __root joint pose estimation (global tranformations)__
 
 ### Training
 
