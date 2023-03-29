@@ -64,3 +64,7 @@ Training configs are set in [train.yaml](https://github.com/beyaldiz/DeepMC/blob
 ```
 python deepmc/train.py
 ```
+
+## References
+- [MoCap-Solver](https://github.com/NetEase-GameAI/MoCap-Solver)
+- [Vector-Neurons](https://github.com/FlyingGiraffe/vnn)
